@@ -6,6 +6,8 @@ const uri = "mongodb+srv://user1:tGUTAs9p6Kr7sx7q@cluster0.ky0inel.mongodb.net/?
 // --- This is the standard stuff to get it to work on the browser
 const express = require('express');
 const app = express();
+const fs = require('fs');
+const cookieParser = require('cookie-parser');
 const port = 3000;
 app.listen(port);
 console.log('Server started at http://localhost:' + port);
@@ -17,13 +19,37 @@ app.use(express.urlencoded({ extended: true }));
 
 // Default route:
 app.get('/', function(req, res) {
-  const myquery = req.query;
-  var outstring = 'Starting... ';
-  res.send(outstring);
+  // Read the content of the HTML file containing the login container
+  fs.readFile('login-page.html', 'utf8', function(err, data) {
+    if (err) {
+      // Handle error if file reading fails
+      console.error('Error reading the login page:', err);
+      res.status(500).send('Error reading the login page');
+      return;
+    }
+    // Send the content of the login page as the response
+    res.send(data);
+  });
 });
 
-app.get('/say/:name', function(req, res) {
-  res.send('Hello ' + req.params.name + '!');
+//registration:
+app.use(cookieParser());
+
+app.use(express.static('public'));
+
+app.get('/register', function(req, res) {
+    res.sendFile(__dirname + '/register');
+});
+
+// Handle registration form submission
+app.post('/registration-page.html', function(req, res) {
+    const { username, password } = req.body;
+
+    // Here, you would typically save the user's information to a database
+    // For demonstration purposes, we'll just set a cookie with the user's information
+    res.cookie('userData', { username, password }, { maxAge: 900000, httpOnly: true });
+
+    res.send('Registration successful!');
 });
 
 
