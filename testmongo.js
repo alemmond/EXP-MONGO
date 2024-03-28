@@ -6,8 +6,8 @@ const uri = "mongodb+srv://user1:tGUTAs9p6Kr7sx7q@cluster0.ky0inel.mongodb.net/?
 // --- This is the standard stuff to get it to work on the browser
 const express = require('express');
 const app = express();
-const fs = require('fs');
-const cookieParser = require('cookie-parser');
+const path = require('path');
+
 const port = 3000;
 app.listen(port);
 console.log('Server started at http://localhost:' + port);
@@ -17,40 +17,40 @@ app.use(express.urlencoded({ extended: true }));
 
 // routes will go here
 
-// Default route:
+// Serve the login page
 app.get('/', function(req, res) {
-  // Read the content of the HTML file containing the login container
-  fs.readFile('login-page.html', 'utf8', function(err, data) {
-    if (err) {
-      // Handle error if file reading fails
-      console.error('Error reading the login page:', err);
-      res.status(500).send('Error reading the login page');
-      return;
-    }
-    // Send the content of the login page as the response
-    res.send(data);
-  });
+  res.sendFile(path.join(__dirname, 'login-page.html'));
 });
 
-//registration:
-app.use(cookieParser());
-
-app.use(express.static('public'));
-
-app.get('/register', function(req, res) {
-    res.sendFile(__dirname + '/register');
+// Serve the registration page
+app.get('/registration', function(req, res) {
+    res.sendFile(path.join(__dirname, 'registration-page.html'));
 });
 
 // Handle registration form submission
-app.post('/registration-page.html', function(req, res) {
-    const { username, password } = req.body;
+app.post('/register', function(req, res) {
+  // Handle registration logic
 
-    // Here, you would typically save the user's information to a database
-    // For demonstration purposes, we'll just set a cookie with the user's information
-    res.cookie('userData', { username, password }, { maxAge: 900000, httpOnly: true });
-
-    res.send('Registration successful!');
+  // Redirect to the dashboard page after successful registration
+  res.redirect('/dashboard');
 });
+
+// Handle login form submission
+app.post('/login', function(req, res) {
+  // Handle login logic
+
+  // Redirect to the dashboard page after successful login
+  res.redirect('/dashboard');
+});
+
+// Serve the dashboard page
+app.get('/dashboard', function(req, res) {
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+// Serve static files (like script.js)
+app.use(express.static(__dirname));
+
 
 
 // Route to access database:
